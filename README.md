@@ -1,6 +1,4 @@
-[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)
 # Проект Mesto фронтенд + бэкенд
-
 
 ## Директории
 
@@ -18,3 +16,6 @@
 ### Ссылка на репозиторий
 
 https://github.com/Raynalle/express-mesto-gha
+
+### Заметка для ревьюера
+localhost = 127.0.0.1, при запуске сервера с localhost появлялась ошибка, было принято решение localhost заменить на 127.0.0.1
