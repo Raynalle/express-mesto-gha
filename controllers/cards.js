@@ -1,4 +1,6 @@
 const Card = require('../models/card');
+const NotFound = require('../errors/NotFound');
+const Forbidden = require('../errors/Forbidden');
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
@@ -23,24 +25,19 @@ const getCard = (req, res) => {
     .catch((err) => res.status(500).send({ message: `Ошибка на сервере ${err.message}` }));
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
-      if (card) {
-        Card.deleteOne(card).then(() => {
-          res.send({ message: 'Карточка удалена' });
-        });
-      } else {
-        res.status(404).send({ message: 'Карточка не найдена' });
+      if (!card) {
+        throw new NotFound('карточка с таким id не найдена');
       }
+      if (card.owner._id.toString() !== req.user._id.toString()) {
+        throw new Forbidden('Вы не можете удалить карточку другого пользователя');
+      }
+      card.remove();
+      res.status(200).send({ data: card, message: 'Карточка удалена' });
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: `Некорректные данные  ${err.message}` });
-      } else {
-        res.status(500).send({ message: `Ошибка на сервере ${err.message}` });
-      }
-    });
+    .catch(next);
 };
 
 const likeCard = (req, res) => {
