@@ -3,7 +3,8 @@
 /* eslint-disable import/no-unresolved */
 const mongoose = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
+const Conflict = require('../errors/Conflict');
 
 const validate = /^https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i;
 
@@ -37,7 +38,6 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 8,
     select: false,
   },
 });
@@ -47,11 +47,11 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
+        return Promise.reject(new Conflict('Неправильные почта или пароль'));
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          return Promise.reject(new Error('Неправильные почта или пароль'));
+          return Promise.reject(new Conflict('Неправильные почта или пароль'));
         }
         return user;
       });

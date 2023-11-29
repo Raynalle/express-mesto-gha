@@ -37,7 +37,9 @@ const createUser = (req, res, next) => {
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `Ошибка валидации ${err.message}` });
+        res.status(BadRequest).send({ message: `Ошибка валидации ${err.message}` });
+      } else if (err.code === 11000) {
+        next(new Conflict('Пользователь с таким email уже существует'));
       } else {
         res.status(500).send({ message: `Ошибка сервера ${err.message}` });
       }
@@ -51,14 +53,12 @@ const updateUserData = (req, res) => {
       if (user) {
         res.send({ data: user });
       } else {
-        res.status(404).send({ message: 'Пользователь не найден' });
+        res.status(NotFound).send({ message: 'Пользователь не найден' });
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: `Некорректные данные  ${err.message}` });
-      } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `Некорректные данные  ${err.message}` });
+      if (err.name === 'ValidationError') {
+        res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
       } else {
         res.status(500).send({ message: `Ошибка сервера ${err.message}` });
       }
@@ -81,7 +81,7 @@ const login = (req, res, next) => {
       res.send({ token });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      res.status(Unauthorized).send({ message: err.message });
     });
 };
 
@@ -103,14 +103,14 @@ const updateAvatar = (req, res) => {
       if (user) {
         res.send({ data: user });
       } else {
-        res.status(404).send({ message: 'Пользователь не найден' });
+        res.status(NotFound).send({ message: 'Пользователь не найден' });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: `Некорректные данные  ${err.message}` });
+        res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
       } else if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `Некорректные данные  ${err.message}` });
+        res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
       } else {
         res.status(500).send({ message: `Ошибка сервера ${err.message}` });
       }

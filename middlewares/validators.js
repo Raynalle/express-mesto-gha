@@ -28,14 +28,14 @@ const validateSignIn = celebrate({
 
 const validateUserId = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().hex().length(24),
+    userId: Joi.string().hex().required().length(24),
   }),
 });
 
 const validateUpdateUserData = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
   }),
 });
 

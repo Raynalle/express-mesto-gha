@@ -1,6 +1,7 @@
 const Card = require('../models/card');
 const NotFound = require('../errors/NotFound');
 const Forbidden = require('../errors/Forbidden');
+const BadRequest = require('../errors/BadRequest');
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
@@ -12,7 +13,7 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: `Некорректные данные  ${err.message}` });
+        res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
       } else {
         res.status(500).send({ message: `Ошибка на сервере ${err.message}` });
       }
@@ -35,8 +36,8 @@ const deleteCard = (req, res, next) => {
         throw new Forbidden('Вы не можете удалить карточку другого пользователя');
       }
       card.remove();
-      res.status(200).send({ data: card, message: 'Карточка удалена' });
     })
+    .then(() => res.status(200).json({ message: 'Карточка удалена' }))
     .catch(next);
 };
 
@@ -50,12 +51,12 @@ const likeCard = (req, res) => {
       if (card) {
         res.send({ data: card });
       } else {
-        res.status(404).send({ message: 'Карточка не найдена' });
+        res.status(NotFound).send({ message: 'Карточка не найдена' });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: `Некорректные данные  ${err.message}` });
+        res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
       } else {
         res.status(500).send({ message: `Ошибка на сервере ${err.message}` });
       }
@@ -72,12 +73,12 @@ const dislikeCard = (req, res) => {
       if (card) {
         res.send({ data: card });
       } else {
-        res.status(404).send({ message: 'Карточка не найдена' });
+        res.status(NotFound).send({ message: 'Карточка не найдена' });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: `Некорректные данные  ${err.message}` });
+        res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
       } else {
         res.status(500).send({ message: `Ошибка на сервере ${err.message}` });
       }
