@@ -4,7 +4,7 @@
 const mongoose = require('mongoose');
 const isEmail = require('validator/lib/isEmail');
 const bcrypt = require('bcrypt');
-const Conflict = require('../errors/Conflict');
+const Unauthorized = require('../errors/Unauthorized');
 
 const validate = /^https?:\/\/(www)?[0-9a-z\-._~:/?#[\]@!$&'()*+,;=]+#?$/i;
 
@@ -47,11 +47,11 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Conflict('Неправильные почта или пароль'));
+        return Promise.reject(new Unauthorized('Неправильные почта или пароль'));
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          return Promise.reject(new Conflict('Неправильные почта или пароль'));
+          return Promise.reject(new Unauthorized('Неправильные почта или пароль'));
         }
         return user;
       });

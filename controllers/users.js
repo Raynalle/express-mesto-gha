@@ -37,11 +37,11 @@ const createUser = (req, res, next) => {
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BadRequest).send({ message: `Ошибка валидации ${err.message}` });
+        next(new BadRequest('Ошибка валидации'));
       } else if (err.code === 11000) {
         next(new Conflict('Пользователь с таким email уже существует'));
       } else {
-        res.status(500).send({ message: `Ошибка сервера ${err.message}` });
+        next(err);
       }
     });
 };
@@ -107,9 +107,7 @@ const updateAvatar = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
-      } else if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
       } else {
         res.status(500).send({ message: `Ошибка сервера ${err.message}` });
