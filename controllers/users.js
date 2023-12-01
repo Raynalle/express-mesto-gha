@@ -46,22 +46,22 @@ const createUser = (req, res, next) => {
     });
 };
 
-const updateUserData = (req, res) => {
+const updateUserData = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
-      if (user) {
-        res.send({ data: user });
+      if (!user) {
+        throw new NotFound('Пользователь не найден');
       } else {
-        res.status(NotFound).send({ message: 'Пользователь не найден' });
+        res.send(user);
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
-      } else {
-        res.status(500).send({ message: `Ошибка сервера ${err.message}` });
+        next(new BadRequest('Переданы некорректные данные.'));
+        return;
       }
+      next(err);
     });
 };
 
