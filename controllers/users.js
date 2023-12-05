@@ -80,8 +80,8 @@ const login = (req, res, next) => {
 
       res.send({ token });
     })
-    .catch((err) => {
-      res.status(Unauthorized).send({ message: err.message });
+    .catch(() => {
+      next(new Unauthorized('Неверные почта или пароль'));
     });
 };
 
@@ -96,21 +96,21 @@ const getCurrentUser = (req, res, next) => {
     .catch(next);
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
-      if (user) {
-        res.send({ data: user });
+      if (!user) {
+        next(new NotFound('Пользователь не найден'));
       } else {
-        res.status(NotFound).send({ message: 'Пользователь не найден' });
+        res.send(user);
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BadRequest).send({ message: `Некорректные данные  ${err.message}` });
+        next(new BadRequest('Некорректные данные'));
       } else {
-        res.status(500).send({ message: `Ошибка сервера ${err.message}` });
+        next(err);
       }
     });
 };
